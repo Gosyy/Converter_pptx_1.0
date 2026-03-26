@@ -51,7 +51,15 @@ def login(data: LoginSchema, response: Response, db: Session = Depends(get_db)):
         raise HTTPException(403, "Email не подтверждён. Проверьте почту.")
     token = create_access_token({"user_id": user.id})
     set_auth_cookie(response, token)
-    return {"msg": "Вход выполнен"}
+    return {
+        "msg": "Вход выполнен",
+        "user_id": user.id,
+        "email": user.email,
+        "name": user.name,
+        "is_verified": user.is_verified,
+        "provider": user.provider,
+        "avatar": user.avatar,
+    }
 
 
 

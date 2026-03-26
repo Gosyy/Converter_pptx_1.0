@@ -15,6 +15,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   useAuthCheck();
 
   if (!auth.isChecked) return <LoadingOverlay title="Подождите" />;
+  if (!auth.isLoggedIn) return <Navigate to="/auth" replace />;
 
   return <>{children}</>;
 };

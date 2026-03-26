@@ -4,6 +4,7 @@ import logging
 
 from src.routes import file_routes, presentation_routes, test_routes, auth_routes, oauth_routes, user_routes
 from src.preload import preload_models
+from src.config import settings
 
 app = FastAPI(
     title="API Documentation",
@@ -38,6 +39,10 @@ app.add_middleware(
 # Preload models at startup
 @app.on_event("startup")
 async def startup_event():
+    if not settings.PRELOAD_MODELS:
+        logging.info("Startup: model preload disabled (PRELOAD_MODELS=false)")
+        return
+
     logging.info("Starting up - preloading models...")
     try:
         preload_models()
