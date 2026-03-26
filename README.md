@@ -141,14 +141,14 @@ graph TB
 # Настройки по умолчанию
 DEFAULT_EMBEDDING_MODEL = "BAAI/bge-m3"
 CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-DEFAULT_MODEL = "moonshotai/kimi-k2-0905"  # OpenRouter
+DEFAULT_MODEL = "GigaChat-2-Pro"  # GigaChat 2.0
 ```
 
 ### Поддерживаемые LLM модели
 
-- `moonshotai/kimi-k2-0905` - Основная модель
-- `openai/gpt-oss-120b` - Альтернативная
-- `google/gemma-3-12b-it` - Google Gemma
+- `GigaChat-2` - Базовая модель
+- `GigaChat-2-Pro` - Основная модель
+- `GigaChat-2-Max` - Максимальная модель
 
 ---
 
@@ -239,11 +239,14 @@ npm start
 #### Backend (.env)
 ```env
 # API Keys
-OPENROUTER_API_KEY=your_openrouter_key
-OPENAI_API_KEY=your_openai_key  # опционально
+GIGACHAT_AUTH_KEY=your_gigachat_authorization_key
+GIGACHAT_OAUTH_URL=https://ngw.devices.sberbank.ru:9443/api/v2/oauth
+GIGACHAT_API_URL=https://gigachat.devices.sberbank.ru/api/v1/chat/completions
+GIGACHAT_SCOPE=GIGACHAT_API_PERS
+GIGACHAT_VERIFY_SSL=true
 
 # Model Configuration
-DEFAULT_MODEL=moonshotai/kimi-k2-0905
+DEFAULT_MODEL=GigaChat-2-Pro
 DEFAULT_EMBEDDING_MODEL=BAAI/bge-m3
 CROSS_ENCODER_MODEL=cross-encoder/ms-marco-MiniLM-L-6-v2
 
@@ -255,6 +258,7 @@ TEMPFILE_CLEANUP_INTERVAL_SECONDS=3600
 ENVIRONMENT=production
 
 # PostgreSQL
+USE_DATABASE=false
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=yourdb
@@ -386,7 +390,7 @@ Content-Type: multipart/form-data
 
 text: "Описание презентации"
 file: [uploaded file]
-model: "moonshotai/kimi-k2-0905"
+model: "GigaChat-2-Pro"
 ```
 
 ```http
