@@ -24,7 +24,7 @@
 //   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 //   const fileInputRef = useRef<HTMLInputElement | null>(null);
 //   const dispatch = useDispatch<AppDispatch>();
-//   const [model, setModel] = useState<string>("google/gemma-3-12b-it");
+//   const [model, setModel] = useState<string>("GigaChat-2-Pro");
 //   const [fileStatus, setFileStatus] = useState<{
 //     name: string;
 //     converted: boolean;
@@ -147,7 +147,7 @@ export const useGeneration = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [model, setModel] = useState<string>("google/gemma-3-12b-it");
+  const [model, setModel] = useState<string>("GigaChat-2-Pro");
   const dispatch = useDispatch<AppDispatch>();
 
   const wsRef = useRef<WebSocket | null>(null);

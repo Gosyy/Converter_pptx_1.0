@@ -8,20 +8,22 @@ from pydantic import EmailStr
 
 
 class _Settings(BaseSettings):
-    # API Keys
-    OPENROUTER_API_KEY: str
-    OPENAI_API_KEY: str | None = None
-    OPENROUTER_API_URL: str = "https://openrouter.ai/api/v1/chat/completions"
+    # GigaChat API
+    GIGACHAT_AUTH_KEY: str
+    GIGACHAT_OAUTH_URL: str = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
+    GIGACHAT_API_URL: str = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+    GIGACHAT_SCOPE: str = "GIGACHAT_API_PERS"
+    GIGACHAT_VERIFY_SSL: bool = True
 
     # Основные модели
-    DEFAULT_MODEL: str = "moonshotai/kimi-k2-0905"
+    DEFAULT_MODEL: str = "GigaChat-2-Pro"
     DEFAULT_EMBEDDING_MODEL: str = "openai/gpt-oss-120b"
     CROSS_ENCODER_MODEL: str = "google/gemma-3-12b-it"
     
     DEFAULT_MODEL_VALUES: ClassVar[list[str]] = [
-        "moonshotai/kimi-k2-0905",
-        "openai/gpt-oss-120b",
-        "google/gemma-3-12b-it"
+        "GigaChat-2",
+        "GigaChat-2-Pro",
+        "GigaChat-2-Max"
     ]
 
     # Qdrant
