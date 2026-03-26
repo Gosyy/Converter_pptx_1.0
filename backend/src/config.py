@@ -39,10 +39,11 @@ class _Settings(BaseSettings):
     FRONT_URL: str = "http://localhost:3000"
 
     # PostgreSQL
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    POSTGRES_HOST: str
+    USE_DATABASE: bool = False
+    POSTGRES_USER: str | None = None
+    POSTGRES_PASSWORD: str | None = None
+    POSTGRES_DB: str | None = None
+    POSTGRES_HOST: str | None = None
     POSTGRES_PORT: int = 5432
 
     # JWT
