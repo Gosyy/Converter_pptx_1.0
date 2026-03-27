@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
-from src.routes import file_routes, presentation_routes, test_routes, auth_routes, oauth_routes, user_routes
+from src.routes import file_routes, presentation_routes, test_routes, auth_routes
 from src.preload import preload_models
 from src.config import settings
 
@@ -56,5 +56,3 @@ app.include_router(presentation_routes.router)
 app.include_router(file_routes.router)
 app.include_router(test_routes.router)
 app.include_router(auth_routes.router)
-app.include_router(user_routes.router)
-app.include_router(oauth_routes.router)

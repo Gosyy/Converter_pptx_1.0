@@ -176,6 +176,21 @@ cp frontend/.env.example frontend/.env
 docker-compose up --build
 ```
 
+### Practical checklist (login → generation → editor)
+
+```bash
+./scripts/practical_checklist.sh
+```
+
+Скрипт делает полный цикл:
+1. Проверяет/создаёт `backend/.env` из `backend/.env.example`.
+2. Принудительно включает `USE_DATABASE=true`.
+3. Поднимает `postgres` через `docker compose`.
+4. Проверяет Python ML-зависимости (`torch`, `sentence_transformers`, `transformers`).
+5. Проверяет/создаёт `frontend/.env` и ставит `REACT_APP_API_URL=http://localhost:8000/api`.
+6. Поднимает `backend` и `frontend`.
+7. Проверяет endpoint логина и выводит URL для проверки `/generate` и `/editor`.
+
 ### Доступ к приложению
 
 - **Frontend**: http://localhost:3000
@@ -191,11 +206,8 @@ docker-compose up --build
 | `/`           | `PromptPage` — главная страница, знакомство с сервисом и отправка промпта |
 | `/generate`   | `GeneratePage` — генерация контента на основе промпта |
 | `/editor`     | `EditorPage` — редактор для доработки и сохранения сгенерированной презентации |
-| `/auth`       | `AuthPage` - страница авторизации |
 | `/settings`   | `SettingsPage` - настройки пользователя |
-| `/projects` | `MyPresentationsPage` - список созданных презентаций (только для авторизованных пользователей) |
-| `/verify-email` | `VerificationPage` - подтверждение кода при регистрации |
-| `/auth/success` | `OAuthSuccess` - fallback-компонент успешной OAuth-авторизации |
+| `/projects` | `MyPresentationsPage` - список созданных презентаций |
 
 Все страницы обернуты в компонент `PageWrapper` для единого оформления и управления макетом.
 
@@ -265,27 +277,6 @@ POSTGRES_PASSWORD=password
 POSTGRES_DB=yourdb
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
-
-# JWT
-SECRET_KEY=your_secret_key
-ALGORITHM=HS256
-
-# SMTP
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASSWORD=smtp_password
-SMTP_FROM_EMAIL=your_email@gmail.com
-
-# GitHub OAuth
-GITHUB_CLIENT_ID=github_client_id
-GITHUB_CLIENT_SECRET=github_client_secret_key
-GITHUB_REDIRECT_URI=http://localhost:8000/auth/github/callback
-
-# Google OAuth
-GOOGLE_CLIENT_ID=google_client_id
-GOOGLE_CLIENT_SECRET=google_client_secret_key
-GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
 FRONT_URL=http://localhost:3000
 
 ```
@@ -407,7 +398,7 @@ POST /api/presentation/save-presentation
 ```
 
 ```http
-"Удаление презентации (для авторизованных пользователей)"
+"Удаление презентации"
 
 DELETE /api/presentation/{presentation_id}
 ```
@@ -423,34 +414,12 @@ POST /api/presentation/edit
 GET /api/files/{filename}
 ```
 
-#### Авторизация пользователя
+#### Guest mode endpoints
 ```http
-POST /api/auth/register
-
 POST /api/auth/login
 
 GET /api/auth/me
-```
-
-#### Верификация
-```http
-POST /api/auth/email/send_code
-
-POST /api/auth/email/verify
-```
-
-#### OAuth 2.0
-```https
-GET /api/auth/github/login
-GET /api/auth/github/callback
-
-GET /api/auth/google/login
-GET /api/auth/google/callback
-```
-
-#### Настройки пользователя
-```http
-PUT /api/user/edit
+POST /api/auth/logout
 ```
 
 #### Подробное описание маршрутов

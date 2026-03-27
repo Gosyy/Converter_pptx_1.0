@@ -34,8 +34,11 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        PRELOAD_MODEL_CACHE: "true"
     volumes:
       - ./backend:/code
+      - model_cache:/models_cache
     networks:
       - app-network
     ports:
@@ -73,6 +76,7 @@ services:
 
 volumes:
   postgres_prod_data:
+  model_cache:
 
 networks:
   app-network:
