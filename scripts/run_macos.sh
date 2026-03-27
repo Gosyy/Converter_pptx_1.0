@@ -23,6 +23,7 @@ deactivate
 # 3) Frontend deps
 cd "$FRONTEND_DIR"
 npm install
+npm run build
 
 # 4) Start backend + frontend in separate Terminal tabs (macOS)
 osascript <<EOF
