@@ -6,9 +6,11 @@ import {
   Alert,
   Box,
   Button,
+  FormControlLabel,
   MenuItem,
   Select,
   Snackbar,
+  Switch,
   TextField,
   Typography,
   useMediaQuery,
@@ -17,6 +19,9 @@ import {
 import { useGeneration } from "../../../shared/hooks";
 import { useNavigate } from "react-router-dom";
 import { LoadingOverlay } from "../../../shared/components";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../app/store";
+import { setUseDatabase } from "../../../app/store/slices/uiSlice";
 
 export const PromptSend: React.FC = () => {
   const {
@@ -35,6 +40,8 @@ export const PromptSend: React.FC = () => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const dispatch = useDispatch<AppDispatch>();
+  const useDatabase = useSelector((s: RootState) => s.ui.useDatabase);
 
   const navigate = useNavigate();
 
@@ -95,6 +102,43 @@ export const PromptSend: React.FC = () => {
           width: "100%",
         }}
       >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            mb: 1,
+            transition: "all .25s ease",
+          }}
+        >
+          <FormControlLabel
+            control={
+              <Switch
+                checked={useDatabase}
+                onChange={(e) => dispatch(setUseDatabase(e.target.checked))}
+                color="primary"
+                sx={{
+                  "& .MuiSwitch-switchBase": {
+                    transitionDuration: "250ms",
+                  },
+                }}
+              />
+            }
+            label={
+              useDatabase
+                ? "Сохранять в БД: включено"
+                : "Сохранять в БД: отключено"
+            }
+            sx={{
+              mr: 0,
+              "& .MuiFormControlLabel-label": {
+                fontSize: 14,
+                color: "text.secondary",
+                transition: "color .25s ease",
+              },
+            }}
+          />
+        </Box>
+
         <TextField
           fullWidth
           multiline
@@ -204,9 +248,9 @@ export const PromptSend: React.FC = () => {
                 },
               }}
             >
-              <MenuItem value="google/gemma-3-12b-it">gemma-3-12b-it</MenuItem>
-              <MenuItem value="moonshotai/kimi-k2-0905">kimi-k2-0905</MenuItem>
-              <MenuItem value="openai/gpt-oss-120b">gpt-oss-120b</MenuItem>
+              <MenuItem value="GigaChat-2">GigaChat-2</MenuItem>
+              <MenuItem value="GigaChat-2-Pro">GigaChat-2-Pro</MenuItem>
+              <MenuItem value="GigaChat-2-Max">GigaChat-2-Max</MenuItem>
             </Select>
           </Box>
 
