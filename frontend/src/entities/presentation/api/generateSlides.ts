@@ -1,6 +1,11 @@
-export const getContext = async (file: File, model: string, onChunk?: (chunk: string) => void) => {
+export const getContext = async (
+  file: File,
+  model: string,
+  text: string,
+  onChunk?: (chunk: string) => void
+) => {
   const formData = new FormData();
-  formData.append("text", "11");
+  formData.append("text", text);
   formData.append("file", file);
   formData.append("model", model);
 

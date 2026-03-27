@@ -202,7 +202,7 @@ export const useGeneration = () => {
       let firstChunkReceived = false;
       let updateScheduled = false;
 
-      await getContext(selectedFile!, model, (chunk) => {
+      await getContext(selectedFile!, model, userMsg.content, (chunk) => {
         fullText += chunk;
 
         if (!firstChunkReceived) {
