@@ -4,24 +4,25 @@ import textwrap
 from typing import ClassVar
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import EmailStr
 
 
 class _Settings(BaseSettings):
-    # API Keys
-    OPENROUTER_API_KEY: str
-    OPENAI_API_KEY: str | None = None
-    OPENROUTER_API_URL: str = "https://openrouter.ai/api/v1/chat/completions"
+    # GigaChat API
+    GIGACHAT_AUTH_KEY: str
+    GIGACHAT_OAUTH_URL: str = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
+    GIGACHAT_API_URL: str = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+    GIGACHAT_SCOPE: str = "GIGACHAT_API_PERS"
+    GIGACHAT_VERIFY_SSL: bool = True
 
     # Основные модели
-    DEFAULT_MODEL: str = "moonshotai/kimi-k2-0905"
+    DEFAULT_MODEL: str = "GigaChat-2-Pro"
     DEFAULT_EMBEDDING_MODEL: str = "openai/gpt-oss-120b"
     CROSS_ENCODER_MODEL: str = "google/gemma-3-12b-it"
     
     DEFAULT_MODEL_VALUES: ClassVar[list[str]] = [
-        "moonshotai/kimi-k2-0905",
-        "openai/gpt-oss-120b",
-        "google/gemma-3-12b-it"
+        "GigaChat-2",
+        "GigaChat-2-Pro",
+        "GigaChat-2-Max"
     ]
 
     # Qdrant
@@ -31,37 +32,19 @@ class _Settings(BaseSettings):
     # Временные файлы
     TEMPFILE_DIR: Path = Path("./tmp")
     TEMPFILE_CLEANUP_INTERVAL_SECONDS: int = 3600
+    PRELOAD_MODELS: bool = False
 
     # Домены и фронт
     DOMAIN: str = "http://localhost:3000"
     FRONT_URL: str = "http://localhost:3000"
 
     # PostgreSQL
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    POSTGRES_HOST: str
+    USE_DATABASE: bool = False
+    POSTGRES_USER: str | None = None
+    POSTGRES_PASSWORD: str | None = None
+    POSTGRES_DB: str | None = None
+    POSTGRES_HOST: str | None = None
     POSTGRES_PORT: int = 5432
-
-    # JWT
-    SECRET_KEY: str
-    ALGORITHM: str = "HS256"
-
-    # OAuth
-    GITHUB_CLIENT_ID: str
-    GITHUB_CLIENT_SECRET: str
-    GITHUB_REDIRECT_URI: str
-
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str
-
-    # SMTP
-    SMTP_HOST: str
-    SMTP_PORT: int
-    SMTP_USER: str
-    SMTP_PASSWORD: str
-    SMTP_FROM_EMAIL: EmailStr
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 

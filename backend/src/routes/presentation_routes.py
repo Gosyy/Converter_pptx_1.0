@@ -11,8 +11,7 @@ from fastapi import (
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends
 from src.database import get_db
-from src.schemas.user_schemas import Presentation, User
-from src.auth.dependencies import get_current_user
+from src.schemas.user_schemas import Presentation
 from typing import Annotated
 import json
 from typing import Annotated
@@ -41,22 +40,17 @@ router = APIRouter(prefix="/presentation")
 
 @router.get("/my-presentations")
 def my_presentations(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db),
 ):
-    return db.query(Presentation).filter_by(user_id=current_user.id).all()
+    return db.query(Presentation).all()
 
 
 @router.delete("/presentations/{presentation_id}")
 def delete_presentation(
     presentation_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    pres = (
-        db.query(Presentation)
-        .filter_by(id=presentation_id, user_id=current_user.id)
-        .first()
-    )
+    pres = db.query(Presentation).filter_by(id=presentation_id).first()
     if not pres:
         raise HTTPException(status_code=404, detail="Presentation not found")
 
@@ -69,17 +63,13 @@ def delete_presentation(
 def save_presentation(
     data: SavePresentationSchema,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-
     # создаём новую презентацию, если id нет
     if not data.id:
         data.id = str(uuid4())
         pres = Presentation(
             id=data.id,
-            user_id=current_user.id,
+            user_id=None,
             title=data.title,
             content=data.content,
             theme=data.theme,
@@ -89,14 +79,14 @@ def save_presentation(
         # пытаемся найти презентацию по id и пользователю
         pres = (
             db.query(Presentation)
-            .filter_by(id=data.id, user_id=current_user.id)
+            .filter_by(id=data.id)
             .first()
         )
         if not pres:
             # если не нашли — создаём новую
             pres = Presentation(
                 id=data.id,
-                user_id=current_user.id,
+                user_id=None,
                 title=data.title,
                 content=data.content,
                 theme=data.theme,

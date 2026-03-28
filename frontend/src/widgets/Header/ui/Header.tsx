@@ -14,9 +14,6 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import SlideNavigationToolbar from "../../../features/presentation/ui/components/SlideNavigationToolbar";
 import { useHeader } from "../hooks";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../app/store";
-import HeaderAuthBlock from "../blocks/components/HeaderAuthBlock";
 
 const MotionAppBar = motion(AppBar);
 
@@ -27,8 +24,6 @@ export const Header: React.FC = () => {
   const theme = useTheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const auth = useSelector((state: RootState) => state.auth);
 
   return (
     <MotionAppBar
@@ -80,8 +75,14 @@ export const Header: React.FC = () => {
         </Box>
         {location.pathname === "/editor" && <SlideNavigationToolbar />}
 
-        {location.pathname === "/" && auth.isChecked && (
-          <HeaderAuthBlock isMobile={isMobile} />
+        {location.pathname === "/" && (
+          <Button
+            variant="contained"
+            sx={{ textTransform: "none" }}
+            onClick={() => navigate("/projects")}
+          >
+            Мои презентации
+          </Button>
         )}
       </Toolbar>
     </MotionAppBar>
