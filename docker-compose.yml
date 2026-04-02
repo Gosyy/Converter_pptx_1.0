@@ -1,35 +1,18 @@
-version: '3.8'
-
 services:
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d/prod:ro
-      - ./frontend/build:/usr/share/nginx/html:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
-    depends_on:
-      - backend
-      - frontend
-    networks:
-      - app-network
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    environment:
-      - NODE_ENV=production
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      args:
+        NODE_ENV: "production"
+    image: converter_pptx_frontend:latest
+    ports:
+      - "8080:80" # хост:контейнер (nginx внутри контейнера слушает 80)
     networks:
       - app-network
-    ports:
-      - "3000:3000"
+    depends_on:
+      - backend
+
   backend:
     build:
       context: ./backend
@@ -39,14 +22,8 @@ services:
     volumes:
       - ./backend:/code
       - model_cache:/models_cache
-    networks:
-      - app-network
     ports:
       - "8000:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
     environment:
       - ENVIRONMENT=production
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
@@ -54,30 +31,33 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-converter}
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
 
   postgres:
     image: postgres:16-alpine
-    restart: unless-stopped
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-converter}
     volumes:
-      - postgres_prod_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-converter}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - app-network
-
-volumes:
-  postgres_prod_data:
-  model_cache:
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  model_cache:
+  pgdata:
