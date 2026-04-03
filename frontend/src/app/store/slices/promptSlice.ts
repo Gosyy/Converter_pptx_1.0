@@ -1,15 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { create } from "domain";
 
 interface PromptStateProps {
-  file: File | null;
+  fileName: string | null;
   text: string;
   loading: boolean;
   generating: boolean;
 }
 
 const initialState: PromptStateProps = {
-  file: null,
+  fileName: null,
   text: "",
   loading: false,
   generating: false,
@@ -21,11 +20,11 @@ const promptSlice = createSlice({
   reducers: {
     setPromptSettings: (
       state,
-      action: PayloadAction<{ file: File | null; text: string }>
+      action: PayloadAction<{ fileName?: string | null; text: string }>
     ) => {
-      const { text, file } = action.payload;
+      const { text, fileName } = action.payload;
       state.text = text;
-      state.file = file || null;
+      state.fileName = fileName ?? null;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;

@@ -37,6 +37,7 @@ class _Settings(BaseSettings):
     # Домены и фронт
     DOMAIN: str = "http://localhost:3000"
     FRONT_URL: str = "http://localhost:3000"
+    CORS_ORIGINS: str = ""
 
     # PostgreSQL
     USE_DATABASE: bool = False
