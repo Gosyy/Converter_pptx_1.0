@@ -16,7 +16,11 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import { useGeneration } from "../../../shared/hooks";
 import { useNavigate } from "react-router-dom";
 import { LoadingOverlay } from "../../../shared/components";
@@ -204,11 +208,54 @@ export const PromptSend: React.FC = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             mb: 1,
             transition: "all .25s ease",
+            alignItems: "center",
           }}
         >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Select
+              value={selectedTemplateId ?? ""}
+              onChange={(e) => {
+                const value = String(e.target.value);
+                const id = value || null;
+                dispatch(setSelectedTemplateId(id));
+                if (id) dispatch(setGlobalTheme(id));
+              }}
+              displayEmpty
+              size="small"
+              sx={{ minWidth: 240, height: 40 }}
+            >
+              <MenuItem value="">Шаблон: автооформление</MenuItem>
+              {availableThemes.map((themeItem) => (
+                <MenuItem key={themeItem.id} value={themeItem.id}>
+                  {themeItem.name}
+                </MenuItem>
+              ))}
+            </Select>
+            <input
+              ref={templateInputRef}
+              type="file"
+              accept=".json"
+              style={{ display: "none" }}
+              onChange={handleTemplateUpload}
+            />
+            <Tooltip title="Загрузить шаблон (.json)">
+              <IconButton
+                color="primary"
+                onClick={() => templateInputRef.current?.click()}
+              >
+                <ArrowDownwardIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Сохранить текущую тему как шаблон">
+              <IconButton color="primary" onClick={saveThemeAsTemplate}>
+                <SaveOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <FormControlLabel
               control={
