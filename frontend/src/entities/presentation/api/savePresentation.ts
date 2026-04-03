@@ -1,4 +1,5 @@
 import { PlateSlide } from "../../../shared/types";
+import { getApiBaseUrl } from "../../../shared/config/apiBaseUrl";
 
 export interface SavePresentationPayload {
   id: string;
@@ -9,7 +10,7 @@ export interface SavePresentationPayload {
 
 export const savePresentation = async (payload: SavePresentationPayload) => {
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/presentation/save-presentation`, {
+    const response = await fetch(`${getApiBaseUrl()}/presentation/save-presentation`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

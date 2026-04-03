@@ -2,17 +2,30 @@ FROM python:3.11-slim
 
 WORKDIR /code
 ARG PRELOAD_MODEL_CACHE=true
+ARG BUILD_MODE=auto
 
 # Default model cache locations (can be overridden via environment)
 ENV HF_HOME=/models_cache/huggingface \
     TRANSFORMERS_CACHE=/models_cache/huggingface/transformers \
     SENTENCE_TRANSFORMERS_HOME=/models_cache/sentence-transformers \
-    TORCH_HOME=/models_cache/torch
+    TORCH_HOME=/models_cache/torch \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/requirements.txt ./requirements.txt
+COPY soft /soft
+RUN if [ -f /soft/pip/.ready ]; then \
+      echo "Using offline pip cache from /soft/pip"; \
+      pip install --no-cache-dir --no-index --find-links=/soft/pip -r requirements.txt; \
+    else \
+      if [ "$BUILD_MODE" = "soft-only" ]; then \
+        echo "soft-only mode enabled, but /soft/pip/.ready not found"; \
+        exit 1; \
+      fi; \
+      echo "Offline pip cache not found, using network download"; \
+      pip install --no-cache-dir -r requirements.txt; \
+    fi
 
-COPY . .
+COPY backend/ .
 
 # Ensure cache directories exist with sane permissions
 RUN mkdir -p /models_cache/huggingface/transformers \

@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from "../../../shared/config/apiBaseUrl";
+
 export interface Presentation {
   id: string;
   title: string;
@@ -5,7 +7,7 @@ export interface Presentation {
   theme?: any;
 }
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = getApiBaseUrl();
 
 export const fetchPresentations = async (): Promise<Presentation[]> => {
   try {
