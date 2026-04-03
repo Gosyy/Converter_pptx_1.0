@@ -1,4 +1,21 @@
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d/prod:ro
+      - ./frontend/build:/usr/share/nginx/html:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - app-network
+      
   frontend:
     build:
       context: .
@@ -63,3 +80,4 @@ networks:
 volumes:
   model_cache:
   pgdata:
+  
