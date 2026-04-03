@@ -21,9 +21,7 @@ export const getApiBaseUrl = (): string => {
         clientHost === "localhost" || clientHost === "127.0.0.1";
 
       if (!clientIsLocalhost) {
-        const patched = new URL(configured);
-        patched.hostname = clientHost;
-        return patched.toString().replace(/\/$/, "");
+        return `${window.location.origin}/api`;
       }
     }
 

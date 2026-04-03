@@ -143,6 +143,15 @@ BUILD_MODE=auto docker compose up --build
 - Frontend: `http://localhost:8080`
 - Backend API: `http://localhost:8000`
 
+Схема связи в Docker:
+- браузер → `http://<SERVER_IP>:8080`
+- nginx(frontend) принимает `/api/*` и проксирует на `backend:8000`
+- backend отвечает и возвращает данные обратно через nginx.
+
+Пример для внешнего доступа:
+- если сервер имеет IP `213.165.223.227`, фронт доступен по `http://213.165.223.227:8080`
+- API из браузера уходит на `http://213.165.223.227:8080/api/...` (без CORS между origin'ами).
+
 ### 4) Остановка
 
 ```bash

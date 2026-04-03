@@ -30,6 +30,7 @@ FROM nginx:stable-alpine AS runtime
 # Удаляем дефолтный контент и копируем сборку
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # (Опционально) копируем кастомную конфигурацию nginx, если есть
 # COPY nginx/nginx.prod.conf /etc/nginx/nginx.conf
