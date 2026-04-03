@@ -101,14 +101,6 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:8080
 
 > `CORS_ORIGINS` — CSV-список origin'ов.
 
-Быстрый вариант:
-
-```bash
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
-cp .env.compose.example .env
-```
-
 ### 2) Опционально: подготовка offline/быстрого кэша
 
 ```bash
