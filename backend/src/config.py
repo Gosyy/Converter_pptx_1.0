@@ -38,6 +38,7 @@ class _Settings(BaseSettings):
     DOMAIN: str = "http://localhost:3000"
     FRONT_URL: str = "http://localhost:3000"
     CORS_ORIGINS: str = ""
+    CORS_ALLOW_ORIGIN_REGEX: str = r"^https?://(localhost|127\.0\.0\.1|(\d{1,3}\.){3}\d{1,3})(:\d+)?$"
 
     # PostgreSQL
     USE_DATABASE: bool = False

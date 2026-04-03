@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from "../../../shared/config/apiBaseUrl";
+
 export const getContext = async (
   file: File | undefined,
   model: string,
@@ -11,7 +13,7 @@ export const getContext = async (
   }
   formData.append("model", model);
 
-  const resp = await fetch(`${process.env.REACT_APP_API_URL}/presentation/generate`, {
+  const resp = await fetch(`${getApiBaseUrl()}/presentation/generate`, {
     method: "POST",
     body: formData,
   });

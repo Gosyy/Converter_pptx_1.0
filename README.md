@@ -97,6 +97,7 @@ GIGACHAT_AUTH_KEY=your_token
 FRONT_URL=http://localhost:8080
 DOMAIN=http://localhost:8080
 CORS_ORIGINS=http://localhost:3000,http://localhost:8080
+CORS_ALLOW_ORIGIN_REGEX=^https?://(localhost|127\\.0\\.0\\.1|(\\d{1,3}\\.){3}\\d{1,3})(:\\d+)?$
 ```
 
 > `CORS_ORIGINS` — CSV-список origin'ов.
