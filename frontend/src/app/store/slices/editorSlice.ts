@@ -237,6 +237,15 @@ const editorSlice = createSlice({
     ) => {
       state.customTheme = { ...state.customTheme, ...action.payload };
     },
+    addAvailableTheme(state, action: PayloadAction<Theme>) {
+      const incoming = action.payload;
+      const idx = state.availableThemes.findIndex((t) => t.id === incoming.id);
+      if (idx >= 0) {
+        state.availableThemes[idx] = incoming;
+        return;
+      }
+      state.availableThemes.push(incoming);
+    },
     reorderSlides(
       state,
       action: PayloadAction<{ oldIndex: number; newIndex: number }>
@@ -264,6 +273,7 @@ export const {
   resetVisitedSlides,
   setGlobalTheme,
   setCustomTheme,
+  addAvailableTheme,
   reorderSlides,
 } = editorSlice.actions;
 export default editorSlice.reducer;

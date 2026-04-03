@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+from urllib.parse import urlparse
 
 from src.routes import file_routes, presentation_routes, test_routes, auth_routes
 from src.preload import preload_models
@@ -14,10 +15,28 @@ app = FastAPI(
     docs_url="/docs",
 )
 
+def _normalize_origin(origin: str) -> str | None:
+    candidate = (origin or "").strip()
+    if not candidate:
+        return None
+    parsed = urlparse(candidate)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        logging.warning(f"Skip invalid CORS origin: {candidate}")
+        return None
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
 # Настройка CORS
-origins = [
-    "*",
-]
+raw_origins = []
+if settings.CORS_ORIGINS:
+    raw_origins.extend(settings.CORS_ORIGINS.split(","))
+raw_origins.extend([settings.FRONT_URL, settings.DOMAIN, "http://localhost:3000"])
+
+origins = []
+for item in raw_origins:
+    normalized = _normalize_origin(item)
+    if normalized and normalized not in origins:
+        origins.append(normalized)
 
 app.add_middleware(
     CORSMiddleware,
