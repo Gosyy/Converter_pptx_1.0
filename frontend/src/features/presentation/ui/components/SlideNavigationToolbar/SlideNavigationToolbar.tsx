@@ -115,7 +115,8 @@ const SlideNavigationToolbar: React.FC = () => {
 
       <Button
         onClick={() => {
-          exportToPptx(slides, theme!);
+          if (!theme) return;
+          exportToPptx(slides, theme);
           save();
         }}
         sx={{
@@ -129,6 +130,7 @@ const SlideNavigationToolbar: React.FC = () => {
             bgcolor: lighten(muiTheme.palette.primary.main, 0.95),
           },
         }}
+        disabled={!theme || slides.length === 0}
       >
         Export
         {!isMobile && <UploadIcon />}
