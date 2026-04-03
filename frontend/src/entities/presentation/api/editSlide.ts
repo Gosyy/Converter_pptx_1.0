@@ -1,4 +1,5 @@
 import { SlideBlock } from "../../../shared/types";
+import { getApiBaseUrl } from "../../../shared/config/apiBaseUrl";
 
 export const editSlide = async ({
   slide,
@@ -8,7 +9,7 @@ export const editSlide = async ({
   text?: string;
 }) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/presentation/edit`,
+    `${getApiBaseUrl()}/presentation/edit`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

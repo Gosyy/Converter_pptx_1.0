@@ -3,14 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../app/store";
 import { markdownToSlides } from "../../utils/markdownToSlides";
 import { setSlides } from "../../../app/store/slices/editorSlice";
+import { setGlobalTheme } from "../../../app/store/slices/editorSlice";
 import { PlateSlide } from "../../types";
 import {
   setLoading,
   setGenerating,
+  setPromptSettings,
 } from "../../../app/store/slices/promptSlice";
 import { getContext } from "../../../entities";
 import { nanoid } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+import { getApiBaseUrl } from "../../config/apiBaseUrl";
 
 interface ChatMessage {
   id: string;
@@ -19,25 +22,40 @@ interface ChatMessage {
   file?: File | null;
 }
 
+let cachedSelectedFile: File | null = null;
+
 export const useGeneration = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputText, setInputText] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { text, loading, fileName } = useSelector(
+    (state: RootState) => state.prompt
+  );
+  const selectedTemplateId = useSelector(
+    (state: RootState) => state.ui.selectedTemplateId
+  );
+  const availableThemes = useSelector(
+    (state: RootState) => state.editor.availableThemes
+  );
+  const [inputText, setInputText] = useState(text ?? "");
+  const [selectedFile, setSelectedFile] = useState<File | null>(
+    cachedSelectedFile
+  );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const updateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [model, setModel] = useState<string>("GigaChat-2-Pro");
   const dispatch = useDispatch<AppDispatch>();
 
-  const wsRef = useRef<WebSocket | null>(null);
-
-  const { file, text, loading } = useSelector(
-    (state: RootState) => state.prompt
-  );
-
   const [fileStatus, setFileStatus] = useState<{
     name: string;
     converted: boolean;
-  } | null>(null);
+  } | null>(
+    fileName
+      ? {
+          name: fileName,
+          converted: true,
+        }
+      : null
+  );
 
   useEffect(() => {
     const aiMsg: ChatMessage = {
@@ -48,23 +66,60 @@ export const useGeneration = () => {
     setMessages([aiMsg]);
   }, []);
 
+  useEffect(() => {
+    dispatch(
+      setPromptSettings({
+        text: inputText,
+        fileName: selectedFile?.name ?? fileName ?? null,
+      })
+    );
+  }, [dispatch, inputText, selectedFile, fileName]);
+
   const sendMessageWS = async () => {
-    if (!inputText.trim() || !selectedFile) {
-      setError("Введите текст и прикрепите файл!");
+    const promptText = inputText.trim() ? inputText : text;
+    const promptFile = selectedFile ?? cachedSelectedFile;
+
+    if (!promptText.trim()) {
+      setError("Введите текст запроса!");
       return false;
     }
 
     const userMsg: ChatMessage = {
       id: uuidv4(),
       type: "user",
-      content: inputText,
-      file: selectedFile,
+      content: promptText,
+      file: promptFile,
     };
     setMessages((prev) => [...prev, userMsg]);
     setInputText("");
-    setFileStatus({ name: selectedFile?.name || "unknown", converted: false });
+    setFileStatus(
+      promptFile ? { name: promptFile.name, converted: false } : null
+    );
 
     try {
+      if (model === "DeepSeek-V3") {
+        const healthResp = await fetch(`${getApiBaseUrl()}/health/models`);
+        if (!healthResp.ok) {
+          setError("Не удалось проверить доступность DeepSeek.");
+          return false;
+        }
+        const health = await healthResp.json();
+        if (!health?.deepseek?.available) {
+          setError(
+            "DeepSeek недоступен: проверьте OPENROUTER_API_KEY и сетевой доступ backend."
+          );
+          return false;
+        }
+      }
+
+      if (selectedTemplateId) {
+        dispatch(setGlobalTheme(selectedTemplateId));
+      } else if (availableThemes.length > 0) {
+        const randomTheme =
+          availableThemes[Math.floor(Math.random() * availableThemes.length)];
+        dispatch(setGlobalTheme(randomTheme.id));
+      }
+
       dispatch(setGenerating(true));
       dispatch(setLoading(true));
 
@@ -80,7 +135,7 @@ export const useGeneration = () => {
       let firstChunkReceived = false;
       let updateScheduled = false;
 
-      await getContext(selectedFile!, model, userMsg.content, (chunk) => {
+      await getContext(promptFile ?? undefined, model, userMsg.content, (chunk) => {
         fullText += chunk;
 
         if (!firstChunkReceived) {
@@ -141,15 +196,21 @@ export const useGeneration = () => {
 
         if (!updateScheduled) {
           updateScheduled = true;
-          setTimeout(() => {
+          if (updateTimerRef.current) clearTimeout(updateTimerRef.current);
+          updateTimerRef.current = setTimeout(() => {
             dispatch(setSlides([...allSlides]));
             updateScheduled = false;
           }, 300);
         }
       });
 
-      setFileStatus({ name: selectedFile.name, converted: true });
-      setSelectedFile(null);
+      if (promptFile) {
+        setFileStatus({ name: promptFile.name, converted: true });
+        setSelectedFile(promptFile);
+        cachedSelectedFile = promptFile;
+      } else {
+        setFileStatus(null);
+      }
       if (fileInputRef.current) fileInputRef.current.value = "";
 
       return true;
@@ -164,16 +225,11 @@ export const useGeneration = () => {
     }
   };
 
-  useEffect(() => {
-    return () => {
-      wsRef.current?.close();
-    };
-  }, []);
-
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setSelectedFile(file);
+    cachedSelectedFile = file;
     setFileStatus({ name: file.name, converted: true });
   };
 
@@ -185,6 +241,14 @@ export const useGeneration = () => {
   const regenerateSlides = async () => {
     return sendMessageWS();
   };
+
+  useEffect(() => {
+    return () => {
+      if (updateTimerRef.current) {
+        clearTimeout(updateTimerRef.current);
+      }
+    };
+  }, []);
 
   return {
     inputText,

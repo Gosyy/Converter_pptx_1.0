@@ -106,12 +106,12 @@ def save_presentation(
 @router.post("/generate", status_code=201)
 async def generate(
     text: Annotated[str, Form(min_length=1)],
-    file: Annotated[UploadFile, File()],
+    file: Annotated[UploadFile | None, File()] = None,
     model: Annotated[str, Form()] = "",
 ) -> Response:
     body = GeneratePresInSchema(text=text, model=model)
 
-    context = await convert_file(file)
+    context = await convert_file(file) if file else ""
 
     return StreamingResponse(
         generate_presentation(body.text, context, body.model),

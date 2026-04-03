@@ -1,4 +1,6 @@
-const API_URL = process.env.REACT_APP_API_URL;
+import { getApiBaseUrl } from "../../../shared/config/apiBaseUrl";
+
+const API_URL = getApiBaseUrl();
 
 export const deletePresentation = async (id: string) => {
   try {
