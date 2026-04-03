@@ -1,13 +1,25 @@
 # Stage 1 — builder: собираем production-статику
 FROM node:lts-alpine AS builder
 WORKDIR /usr/src/app
+ARG BUILD_MODE=auto
 
 # Установим production-зависимости и dev-зависимости для сборки
-COPY package*.json ./
-RUN npm ci --silent
+COPY frontend/package*.json ./
+COPY soft /soft
+RUN if [ -f /soft/npm/.ready ]; then \
+      echo "Using offline npm cache from /soft/npm"; \
+      npm ci --silent --cache /soft/npm --prefer-offline; \
+    else \
+      if [ "$BUILD_MODE" = "soft-only" ]; then \
+        echo "soft-only mode enabled, but /soft/npm/.ready not found"; \
+        exit 1; \
+      fi; \
+      echo "Offline npm cache not found, using network download"; \
+      npm ci --silent; \
+    fi
 
 # Копируем исходники и собираем
-COPY . .
+COPY frontend/ .
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 RUN npm run build

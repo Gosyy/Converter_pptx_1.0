@@ -1,12 +1,14 @@
 export const getContext = async (
-  file: File,
+  file: File | undefined,
   model: string,
   text: string,
   onChunk?: (chunk: string) => void
 ) => {
   const formData = new FormData();
   formData.append("text", text);
-  formData.append("file", file);
+  if (file) {
+    formData.append("file", file);
+  }
   formData.append("model", model);
 
   const resp = await fetch(`${process.env.REACT_APP_API_URL}/presentation/generate`, {

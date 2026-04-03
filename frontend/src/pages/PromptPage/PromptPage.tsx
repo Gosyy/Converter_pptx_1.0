@@ -1,13 +1,8 @@
 import { Box } from "@mui/material";
 import { PromptSend } from "../../features";
-import FeaturesBlock from "../../features/landing/blocks/FeaturesBlock";
-import WhyUsBlock from "../../features/landing/blocks/WhyUsBlock";
-import HowItWorksBlock from "../../features/landing/blocks/HowItWorksBlock";
-import QuickStartBlock from "../../features/landing/blocks/QuickStartBlock";
 import { LoadingOverlay } from "../../shared/components";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import StartBlock from "../../features/landing/blocks/StartBlock";
 
 function PromptPage() {
   const { loading } = useSelector((state: RootState) => state.prompt);
@@ -37,11 +32,6 @@ function PromptPage() {
 
       <Box sx={{ position: "relative", zIndex: 1 }}>
         <PromptSend />
-        <FeaturesBlock />
-        <WhyUsBlock />
-        <HowItWorksBlock />
-        <QuickStartBlock />
-        <StartBlock />
       </Box>
     </Box>
   );
