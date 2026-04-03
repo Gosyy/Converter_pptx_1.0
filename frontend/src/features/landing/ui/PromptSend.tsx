@@ -418,6 +418,52 @@ export const PromptSend: React.FC = () => {
             </Select>
           </Box>
 
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              alignItems: "center",
+              width: isMobile ? "100%" : "auto",
+              mb: isMobile ? 2 : 0,
+            }}
+          >
+            <Select
+              value={selectedTemplateId ?? ""}
+              onChange={(e) => {
+                const value = String(e.target.value);
+                const id = value || null;
+                dispatch(setSelectedTemplateId(id));
+                if (id) dispatch(setGlobalTheme(id));
+              }}
+              displayEmpty
+              sx={{ minWidth: 220, height: 40 }}
+            >
+              <MenuItem value="">Автооформление (без шаблона)</MenuItem>
+              {availableThemes.map((themeItem) => (
+                <MenuItem key={themeItem.id} value={themeItem.id}>
+                  {themeItem.name}
+                </MenuItem>
+              ))}
+            </Select>
+
+            <input
+              ref={templateInputRef}
+              type="file"
+              accept=".json"
+              style={{ display: "none" }}
+              onChange={handleTemplateUpload}
+            />
+            <Button
+              variant="outlined"
+              onClick={() => templateInputRef.current?.click()}
+            >
+              Загрузить шаблон
+            </Button>
+            <Button variant="outlined" onClick={saveThemeAsTemplate}>
+              Сохранить шаблон
+            </Button>
+          </Box>
+
           <Button
             type="submit"
             variant="contained"
