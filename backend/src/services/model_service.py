@@ -87,14 +87,24 @@ class IntegratedPipeline:
             "presentation_topic": user_request[:200],
             "slide_structure": slide_structure,
         }
-        return gen.generate_presentation_content(data)
         self.last_run_metadata = {
             "pipeline_metadata": {
                 "classifier_output": clf.model_dump(),
                 "structure_output": slides,
             },
-            "generation_metadata": gen.generation_metadata,
+            "generation_metadata": {},
         }
+
+        def _stream():
+            try:
+                for slide_payload in gen.generate_presentation_content(data):
+                    yield slide_payload
+            finally:
+                self.last_run_metadata["generation_metadata"] = (
+                    gen.generation_metadata
+                )
+
+        return _stream()
 
     def replace_chart(self, slide: dict, params: dict, slides: list) -> dict:
         title = slide.get("title", "")
@@ -249,7 +259,8 @@ class IntegratedPipeline:
                 edited_slide = self.replace_chart(slide, params, slides)
                 return edited_slide
             except Exception as e:
-                return None, e
+                logging.exception("replace_chart failed")
+                raise HTTPException(500, "Ошибка сервера") from e
         else:
             try:
                 payload = {
@@ -304,8 +315,10 @@ class IntegratedPipeline:
 
                 return parsed
             except Exception as e:
-                print(repr(e))
-                return HTTPException(500, "Ошибка сервера")
+                logging.exception("regenerate_slide failed")
+                if isinstance(e, HTTPException):
+                    raise
+                raise HTTPException(500, "Ошибка сервера") from e
 
 
 setup_logging(logging.INFO)
@@ -331,8 +344,12 @@ def edit_one_slide(user_prompt, slide: dict, action: str, model: str) -> str:
     pipe = IntegratedPipeline(
         api_key=api_key,
         embedding_model=settings.DEFAULT_EMBEDDING_MODEL,
-        llm_model=settings.DEFAULT_MODEL,
+        llm_model=model or settings.DEFAULT_MODEL,
     )
     content = pipe.regenerate_slide(user_prompt, slide, action).get("content", "")
-
-    return f"# {content}\n"
+    cleaned = (content or "").strip()
+    if not cleaned:
+        raise HTTPException(500, "Пустой ответ модели при редактировании слайда")
+    if not cleaned.startswith("#"):
+        cleaned = f"# {cleaned}"
+    return f"{cleaned}\n"
