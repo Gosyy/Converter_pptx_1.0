@@ -68,6 +68,36 @@ def call_model(
     max_tokens: int = 900,
     timeout: int = 60,
 ) -> dict:
+    if model == "DeepSeek-V3":
+        if not settings.OPENROUTER_API_KEY.strip():
+            raise RuntimeError("OPENROUTER_API_KEY is required for DeepSeek-V3.")
+        payload = {
+            "model": settings.DEEPSEEK_MODEL,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+        headers = {
+            "Authorization": f"Bearer {settings.OPENROUTER_API_KEY.strip()}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        resp = requests.post(
+            settings.OPENROUTER_API_URL,
+            headers=headers,
+            json=payload,
+            timeout=timeout,
+        )
+        if not resp.ok:
+            try:
+                err = resp.json()
+                raise RuntimeError(
+                    f"OpenRouter API error {resp.status_code}: {json.dumps(err, ensure_ascii=False)}"
+                )
+            except Exception:
+                raise RuntimeError(f"OpenRouter API error {resp.status_code}: {resp.text}")
+        return resp.json()
+
     payload = {
         "model": model,
         "messages": messages,
@@ -141,3 +171,46 @@ def _strip_invisible(s: str) -> str:
     )
     s = s.replace("\u200b", "").replace("\u200c", "").replace("\u200d", "")
     return s
+
+
+def check_models_health() -> dict:
+    status = {
+        "gigachat": {"available": False, "error": None},
+        "deepseek": {"available": False, "error": None},
+    }
+
+    try:
+        _get_gigachat_token(force_refresh=True)
+        status["gigachat"]["available"] = True
+    except Exception as e:
+        status["gigachat"]["error"] = str(e)
+
+    try:
+        if not settings.OPENROUTER_API_KEY.strip():
+            raise RuntimeError("OPENROUTER_API_KEY is empty")
+
+        headers = {
+            "Authorization": f"Bearer {settings.OPENROUTER_API_KEY.strip()}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        payload = {
+            "model": settings.DEEPSEEK_MODEL,
+            "messages": [{"role": "user", "content": "ping"}],
+            "max_tokens": 1,
+            "temperature": 0,
+        }
+        resp = requests.post(
+            settings.OPENROUTER_API_URL,
+            headers=headers,
+            json=payload,
+            timeout=20,
+        )
+        if not resp.ok:
+            raise RuntimeError(f"OpenRouter API error {resp.status_code}: {resp.text}")
+
+        status["deepseek"]["available"] = True
+    except Exception as e:
+        status["deepseek"]["error"] = str(e)
+
+    return status

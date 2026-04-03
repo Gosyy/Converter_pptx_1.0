@@ -13,6 +13,9 @@ class _Settings(BaseSettings):
     GIGACHAT_API_URL: str = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
     GIGACHAT_SCOPE: str = "GIGACHAT_API_PERS"
     GIGACHAT_VERIFY_SSL: bool = True
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_API_URL: str = "https://openrouter.ai/api/v1/chat/completions"
+    DEEPSEEK_MODEL: str = "deepseek/deepseek-chat-v3-0324"
 
     # Основные модели
     DEFAULT_MODEL: str = "GigaChat-2-Pro"
@@ -20,9 +23,8 @@ class _Settings(BaseSettings):
     CROSS_ENCODER_MODEL: str = "google/gemma-3-12b-it"
     
     DEFAULT_MODEL_VALUES: ClassVar[list[str]] = [
-        "GigaChat-2",
         "GigaChat-2-Pro",
-        "GigaChat-2-Max"
+        "DeepSeek-V3",
     ]
 
     # Qdrant

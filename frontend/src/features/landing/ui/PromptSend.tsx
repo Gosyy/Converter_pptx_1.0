@@ -412,9 +412,8 @@ export const PromptSend: React.FC = () => {
                 },
               }}
             >
-              <MenuItem value="GigaChat-2">GigaChat-2</MenuItem>
               <MenuItem value="GigaChat-2-Pro">GigaChat-2-Pro</MenuItem>
-              <MenuItem value="GigaChat-2-Max">GigaChat-2-Max</MenuItem>
+              <MenuItem value="DeepSeek-V3">DeepSeek-V3</MenuItem>
             </Select>
           </Box>
 

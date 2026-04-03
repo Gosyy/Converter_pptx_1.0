@@ -13,6 +13,7 @@ import {
 import { getContext } from "../../../entities";
 import { nanoid } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
+import { getApiBaseUrl } from "../../config/apiBaseUrl";
 
 interface ChatMessage {
   id: string;
@@ -96,6 +97,21 @@ export const useGeneration = () => {
     );
 
     try {
+      if (model === "DeepSeek-V3") {
+        const healthResp = await fetch(`${getApiBaseUrl()}/health/models`);
+        if (!healthResp.ok) {
+          setError("Не удалось проверить доступность DeepSeek.");
+          return false;
+        }
+        const health = await healthResp.json();
+        if (!health?.deepseek?.available) {
+          setError(
+            "DeepSeek недоступен: проверьте OPENROUTER_API_KEY и сетевой доступ backend."
+          );
+          return false;
+        }
+      }
+
       if (selectedTemplateId) {
         dispatch(setGlobalTheme(selectedTemplateId));
       } else if (availableThemes.length > 0) {

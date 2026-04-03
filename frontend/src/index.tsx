@@ -9,6 +9,7 @@ import { createAppTheme } from "./app/theme";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
+import CssBaseline from "@mui/material/CssBaseline";
 
 const ThemedApp = () => {
   const colorMode = useSelector((state: RootState) => state.ui.colorMode);
@@ -16,6 +17,7 @@ const ThemedApp = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <App />
     </ThemeProvider>
   );

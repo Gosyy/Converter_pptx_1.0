@@ -94,6 +94,7 @@
 
 ```env
 GIGACHAT_AUTH_KEY=your_token
+OPENROUTER_API_KEY=your_openrouter_key
 FRONT_URL=http://localhost:8080
 DOMAIN=http://localhost:8080
 CORS_ORIGINS=http://localhost:3000,http://localhost:8080
@@ -157,6 +158,16 @@ BUILD_MODE=auto docker compose up --build
 ```bash
 docker compose down
 ```
+
+### Health-check моделей
+
+```bash
+curl http://localhost:8000/health/models
+```
+
+Endpoint проверяет доступность:
+- `gigachat` по текущим env;
+- `deepseek` (через OpenRouter) по `OPENROUTER_API_KEY`.
 
 ---
 
