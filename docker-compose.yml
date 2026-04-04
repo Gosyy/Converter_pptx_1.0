@@ -2,7 +2,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - "8080:80"
       - "443:443"
     volumes:
       - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
@@ -25,7 +25,7 @@ services:
         BUILD_MODE: ${BUILD_MODE:-auto}
     image: converter_pptx_frontend:latest
     ports:
-      - "8080:80" # хост:контейнер (nginx внутри контейнера слушает 80)
+      - "8081:80" # хост:контейнер (nginx внутри контейнера слушает 80)
     networks:
       - app-network
     depends_on:
